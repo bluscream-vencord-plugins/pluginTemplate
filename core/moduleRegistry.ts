@@ -1,6 +1,6 @@
 import { logger } from "../utils/logger";
 import { PluginModule } from "../types/module";
-import { PluginModuleEvent, EventPayloads } from "../types/events";
+import { CoreEvent, EventPayloads } from "../types/events";
 import { Message, Channel, User, Guild } from "@vencord/discord-types";
 import { React } from "@webpack/common";
 
@@ -10,7 +10,7 @@ import { React } from "@webpack/common";
 export class ModuleRegistry {
     private modules: PluginModule[] = [];
     private _settings: Record<string, any> = {};
-    private eventListeners: Map<PluginModuleEvent, Array<(payload: any) => void>> = new Map();
+    private eventListeners: Map<string, Array<(payload: any) => void>> = new Map();
 
     public init(settings: Record<string, any>) {
         this._settings = settings;
@@ -20,7 +20,7 @@ export class ModuleRegistry {
         for (const mod of this.modules) {
             try {
                 mod.init(settings);
-                this.dispatch(PluginModuleEvent.MODULE_INIT, { moduleName: mod.name });
+                this.dispatch(CoreEvent.MODULE_INIT, { moduleName: mod.name });
             } catch (e) {
                 logger.error(`Failed to initialize module ${mod.name}:`, e);
             }
@@ -42,21 +42,19 @@ export class ModuleRegistry {
 
     public get settings() { return this._settings; }
 
-    public on<K extends keyof EventPayloads>(event: K, listener: (payload: EventPayloads[K]) => void) {
-        const eventKey = event as unknown as PluginModuleEvent;
-        if (!this.eventListeners.has(eventKey)) this.eventListeners.set(eventKey, []);
-        this.eventListeners.get(eventKey)!.push(listener);
+    public on<K extends string>(event: K, listener: (payload: K extends keyof EventPayloads ? EventPayloads[K] : any) => void) {
+        if (!this.eventListeners.has(event)) this.eventListeners.set(event, []);
+        this.eventListeners.get(event)!.push(listener);
     }
 
-    public dispatch<K extends keyof EventPayloads>(event: K, payload: EventPayloads[K]) {
-        const eventKey = event as unknown as PluginModuleEvent;
-        const listeners = this.eventListeners.get(eventKey);
+    public dispatch<K extends string>(event: K, payload: K extends keyof EventPayloads ? EventPayloads[K] : any) {
+        const listeners = this.eventListeners.get(event);
         if (listeners) {
             for (const listener of listeners) listener(payload);
         }
 
         for (const mod of this.modules) {
-            if (mod.onCustomEvent) mod.onCustomEvent(eventKey, payload);
+            if (mod.onCustomEvent) mod.onCustomEvent(event, payload);
         }
     }
 

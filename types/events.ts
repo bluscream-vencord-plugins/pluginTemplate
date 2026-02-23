@@ -1,8 +1,7 @@
 /**
- * Central event registry for the plugin system.
- * Modules can subscribe to these events via the ModuleRegistry.
+ * Supported core event types.
  */
-export enum PluginModuleEvent {
+export enum CoreEvent {
     /** Dispatched when a module is fully initialized */
     MODULE_INIT = "MODULE_INIT",
     /** Dispatched when a message is created in a relevant channel */
@@ -17,11 +16,14 @@ export enum PluginModuleEvent {
 
 /**
  * Type definitions for event payloads to ensure type safety in subscribers.
+ * Custom events can be defined here or used as generic strings.
  */
 export interface EventPayloads {
-    [PluginModuleEvent.MODULE_INIT]: { moduleName: string };
-    [PluginModuleEvent.MESSAGE_CREATE]: { message: any };
-    [PluginModuleEvent.VOICE_STATE_UPDATE]: { oldState: any; newState: any };
-    [PluginModuleEvent.ACTION_QUEUED]: { item: any };
-    [PluginModuleEvent.ACTION_EXECUTED]: { item: any };
+    [CoreEvent.MODULE_INIT]: { moduleName: string };
+    [CoreEvent.MESSAGE_CREATE]: { message: any };
+    [CoreEvent.VOICE_STATE_UPDATE]: { oldState: any; newState: any };
+    [CoreEvent.ACTION_QUEUED]: { item: any };
+    [CoreEvent.ACTION_EXECUTED]: { item: any };
+    // Fallback for custom string events
+    [key: string]: any;
 }

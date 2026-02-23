@@ -23,6 +23,12 @@ export const ExampleModule: PluginModule = {
 
         // Example of enqueueing an action on startup
         actionQueue.enqueue("Hello from ExampleModule!", "global");
+
+        // Example: Emit a custom event after 5 seconds
+        setTimeout(() => {
+            const { moduleRegistry } = require("../../core/moduleRegistry");
+            moduleRegistry.dispatch("EXAMPLE_CUSTOM_EVENT", { foo: "bar", timestamp: Date.now() });
+        }, 5000);
     },
 
     stop() {
@@ -32,6 +38,13 @@ export const ExampleModule: PluginModule = {
     onMessageCreate(message) {
         if (this.settings?.exampleToggle && message.content === "!ping") {
             actionQueue.enqueue("Pong!", message.channel_id);
+        }
+    },
+
+    onCustomEvent(event, payload) {
+        if (event === "EXAMPLE_CUSTOM_EVENT") {
+            logger.info("[ExampleModule] Received custom event!", payload);
+            showToast(`Custom Event: ${payload.foo}`);
         }
     },
 

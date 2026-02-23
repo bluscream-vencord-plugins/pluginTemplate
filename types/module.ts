@@ -1,5 +1,5 @@
 import { Channel, User, Guild, Message } from "@vencord/discord-types";
-import { PluginModuleEvent, EventPayloads } from "./events";
+import { CoreEvent, EventPayloads } from "./events";
 import { React } from "@webpack/common";
 
 /**
@@ -29,7 +29,7 @@ export interface PluginModule {
     /** Hook for standard VOICE_STATE_UPDATE events */
     onVoiceStateUpdate?(oldState: any, newState: any): void;
     /** Hook for custom internal plugin events */
-    onCustomEvent?<K extends PluginModuleEvent>(event: K, payload: EventPayloads[K]): void;
+    onCustomEvent?(event: string, payload: any): void;
 
     /** Provide items for User context menus */
     getUserMenuItems?(user: User, channel?: Channel): React.ReactElement[] | null;
