@@ -1,6 +1,6 @@
 export const pluginInfo = {
     id: "pluginTemplate",
-    name: "Plugin Template",
+    name: "PluginTemplate",
     commandName: "template",
     description: "A boilerplate for modular Vencord/Equicord plugins.",
     color: "#a6d189",
